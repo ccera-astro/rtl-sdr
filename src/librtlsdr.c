@@ -239,6 +239,37 @@ int r820t_exit(void *dev) {
 
 int r820t_set_freq(void *dev, uint32_t freq) {
 	rtlsdr_dev_t* devt = (rtlsdr_dev_t*)dev;
+	int r;
+	
+	r = 0;
+	/*
+	 * Lower frequencies are a special case because 
+	 *   of the way IF frequency is chosen based on
+	 *   sample rate in the upper layers.
+	 * We need to make sure that IF + freq >= 27675000,
+	 *   or the PLL goes all funny.
+	 */
+	if (freq < 27675000 && devt->rate > 300e3)
+	{
+		int testbw = 1000000;
+		
+		/*
+		 * Try to find the smallest bandwidth that "works"
+		 */
+		while (((r + freq) < 27675000) && (testbw <= 8000000))
+		{
+			r = r82xx_set_bandwidth(&devt->r82xx_p, testbw, devt->rate);
+			testbw += 1000000;
+		}
+		
+		if(r < 0)
+			return r;
+
+		r = rtlsdr_set_if_freq(devt, r);
+		if (r)
+			return r;
+	}
+	
 	return r82xx_set_freq(&devt->r82xx_p, freq);
 }
 
@@ -249,6 +280,7 @@ int r820t_set_bw(void *dev, int bw) {
 	r = r82xx_set_bandwidth(&devt->r82xx_p, bw, devt->rate);
 	if(r < 0)
 		return r;
+
 	r = rtlsdr_set_if_freq(devt, r);
 	if (r)
 		return r;

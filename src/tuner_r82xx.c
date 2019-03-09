@@ -432,6 +432,7 @@ static int r82xx_set_pll(struct r82xx_priv *priv, uint32_t freq)
 	uint8_t refdiv2 = 0;
 	uint8_t ni, si, nint, vco_fine_tune, val;
 	uint8_t data[5];
+	
 
 	/* Frequency in kHz */
 	freq_khz = (freq + 500) / 1000;
@@ -769,6 +770,7 @@ static int r82xx_set_tv_standard(struct r82xx_priv *priv,
 	uint8_t filt_gain, img_r, filt_q, hp_cor, ext_enable, loop_through;
 	uint8_t lt_att, flt_ext_widest, polyfil_cur;
 	int need_calibration;
+	
 
 	/* BW < 6 MHz */
 	if_khz = 3570;
@@ -1027,6 +1029,7 @@ int r82xx_set_bandwidth(struct r82xx_priv *priv, int bw, uint32_t rate)
 	int real_bw = 0;
 	uint8_t reg_0a;
 	uint8_t reg_0b;
+	
 
 	if (bw > 7000000) {
 		// BW: 8 MHz
